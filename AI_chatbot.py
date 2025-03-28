@@ -1,7 +1,6 @@
 from huggingface_hub import login
 from transformers import pipeline, BitsAndBytesConfig
 import torch
-import openai
 
 # def generate_text(prompt, chat_history, model="gpt-4-turbo"):
 #     messages = [{"role": "system", "content": "You are a helpful assistant."}]
