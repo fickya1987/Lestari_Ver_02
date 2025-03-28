@@ -1,7 +1,6 @@
 from huggingface_hub import login
 from transformers import pipeline, BitsAndBytesConfig
 import torch
-import openai
 
 # def generate_text(prompt, model="gpt-4-turbo"):
 #     response = openai.ChatCompletion.create(
