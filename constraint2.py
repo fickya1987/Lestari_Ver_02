@@ -1,82 +1,73 @@
 import pandas as pd
 import re
+from typing import Dict
 
-from huggingface_hub import login
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-login(token=os.getenv("HUGGINGFACE_TOKEN"))
-
-
-
-def process_and_translate(df_kamus, df_idiom, df_paribasa, text):
-    """
-    Normalisasi data, membangun kamus dari tiga dataframe (kamus, idiom, paribasa),
-    dan menerjemahkan teks dengan constraint berdasarkan kamus yang telah dibuat.
-    """
-    # Normalisasi kategori bahasa
+def process_and_translate(
+    df_kamus: pd.DataFrame,
+    df_idiom: pd.DataFrame,
+    df_paribasa: pd.DataFrame,
+    text: str
+) -> str:
+    """Process and translate text using dictionaries."""
+    # Normalize data
     df_kamus["(HALUS/LOMA/KASAR)"] = df_kamus["(HALUS/LOMA/KASAR)"].str.strip()
-    df_idiom["KLASIFIKASI (HALUS/LOMA/KASAR)"] = df_idiom[
-        "KLASIFIKASI (HALUS/LOMA/KASAR)"
-    ].str.strip()
-    df_paribasa["KLASIFIKASI (HALUS/LOMA/KASAR)"] = df_paribasa[
-        "KLASIFIKASI (HALUS/LOMA/KASAR)"
-    ].str.strip()
-
-    # SOLVE PROBLEM e aksen
-    df_kamus.loc[:, "LEMA"] = df_kamus["LEMA"].str.replace("[éÉ]", "e", regex=True)
-    df_kamus.loc[:, "LEMA"] = df_kamus["LEMA"].str.replace("[èÈ]", "e", regex=True)
-
-    # Gabungkan LEMA dan SUBLEMA ke dalam satu set kata kunci
+    df_idiom["KLASIFIKASI (HALUS/LOMA/KASAR)"] = df_idiom["KLASIFIKASI (HALUS/LOMA/KASAR)"].str.strip()
+    
+    # Clean special characters
+    df_kamus["LEMA"] = df_kamus["LEMA"].str.replace("[éèÉÈ]", "e", regex=True)
     df_kamus["SUBLEMA"].fillna("", inplace=True)
-    df_kamus["combined_lema"] = (
-        df_kamus["LEMA"].str.lower() + "," + df_kamus["SUBLEMA"].str.lower()
-    )
-    df_kamus["combined_lema"] = df_kamus["combined_lema"].apply(
-        lambda x: x.split(",") if isinstance(x, str) else []
-    )
+    
+    # Build dictionaries
+    kamus_dict = build_kamus_dict(df_kamus)
+    idiom_dict = build_phrase_dict(df_idiom, "IDIOM", "ARTI BAHASA INDONESIA")
+    paribasa_dict = build_phrase_dict(df_paribasa, "PARIBASA", "ARTI BAHASA INDONESIA")
+    
+    return translate_text(text, kamus_dict, idiom_dict, paribasa_dict)
 
-    # Bangun kamus
-    kamus_dict = {
+def build_kamus_dict(df: pd.DataFrame) -> Dict[str, str]:
+    """Build dictionary from kamus dataframe."""
+    return {
         word.strip(): row["ARTI"]
-        for _, row in df_kamus.iterrows()
-        for word in row["combined_lema"]
+        for _, row in df.iterrows()
+        for word in (row["LEMA"].lower() + "," + row["SUBLEMA"].lower()).split(",")
         if word.strip()
     }
-    idiom_dict = {
-        idiom.lower(): arti
-        for idiom, arti in zip(df_idiom["IDIOM"], df_idiom["ARTI BAHASA INDONESIA"])
-        if pd.notna(arti)
-    }
-    paribasa_dict = {
-        paribasa.lower(): arti
-        for paribasa, arti in zip(
-            df_paribasa["PARIBASA"], df_paribasa["ARTI BAHASA INDONESIA"]
-        )
-        if pd.notna(arti)
+
+def build_phrase_dict(df: pd.DataFrame, phrase_col: str, meaning_col: str) -> Dict[str, str]:
+    """Build phrase dictionary (idiom/paribasa)."""
+    return {
+        phrase.lower(): meaning
+        for phrase, meaning in zip(df[phrase_col], df[meaning_col])
+        if pd.notna(meaning)
     }
 
-    # Fungsi penerjemahan
-    def translate_constraint(text):
-        words = re.findall(r"\b\w+\b|[.,!?;]", text)
-        translated_words = []
-        i = 0
-        while i < len(words):
-            phrase = " ".join(words[i : i + 2]).lower()
+def translate_text(
+    text: str,
+    kamus_dict: Dict[str, str],
+    idiom_dict: Dict[str, str],
+    paribasa_dict: Dict[str, str]
+) -> str:
+    """Translate text using the provided dictionaries."""
+    words = re.findall(r"\b\w+\b|[.,!?;]", text)
+    translated = []
+    i = 0
+    
+    while i < len(words):
+        # Check 2-word phrases first
+        if i < len(words) - 1:
+            phrase = " ".join(words[i:i+2]).lower()
             if phrase in idiom_dict:
-                translated_words.append(idiom_dict[phrase])
+                translated.append(idiom_dict[phrase])
                 i += 2
                 continue
-            elif phrase in paribasa_dict:
-                translated_words.append(paribasa_dict[phrase])
+            if phrase in paribasa_dict:
+                translated.append(paribasa_dict[phrase])
                 i += 2
                 continue
-
-            word = words[i].lower()
-            translated_words.append(kamus_dict.get(word, word))
-            i += 1
-
-        return " ".join(translated_words)
-
-    return translate_constraint(text)
+        
+        # Single word translation
+        word = words[i].lower()
+        translated.append(kamus_dict.get(word, word))
+        i += 1
+    
+    return " ".join(translated)
