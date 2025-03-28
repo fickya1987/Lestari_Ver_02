@@ -4,6 +4,14 @@ import pandas as pd
 import numpy as np
 from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
 
+from huggingface_hub import login
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+login(token=os.getenv("HUGGINGFACE_TOKEN"))
+
+
 
 # def merge_ner_results(results):
 #     """
