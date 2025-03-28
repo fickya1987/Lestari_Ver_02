@@ -55,9 +55,9 @@ def configure_ui():
 def load_resources():
     """Load required data resources"""
     try:
-        df_kamus = pd.read_excel("data/kamus.xlsx")
-        df_idiom = pd.read_excel("data/idiom.xlsx")
-        df_paribasa = pd.read_excel("data/paribasa.xlsx")
+        df_kamus = pd.read_excel("dataset/data_kamus 27-3-25.xlsx")
+        df_idiom = pd.read_excel("dataset/idiom 27-3-25.xlsx")
+        df_paribasa = pd.read_excel("dataset/paribasa 27-3-25.xlsx")
         return df_kamus, df_idiom, df_paribasa
     except Exception as e:
         st.error(f"Data loading failed: {str(e)}")
