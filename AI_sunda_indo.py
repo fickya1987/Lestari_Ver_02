@@ -1,4 +1,3 @@
-import openai
 from transformers import pipeline, BitsAndBytesConfig
 import torch
 
