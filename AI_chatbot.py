@@ -1,55 +1,34 @@
-from huggingface_hub import login
-from transformers import pipeline, BitsAndBytesConfig
-import torch
-import os
-from dotenv import load_dotenv
+# ai_services.py
+from transformers import pipeline
+from typing import Optional
 
-load_dotenv()
-login(token=os.getenv("HUGGINGFACE_TOKEN"))
+class AIService:
+    def __init__(self, model_name: str, task: str = "text-generation"):
+        self.pipe = pipeline(task, model=model_name)
+    
+    def generate_text(self, prompt: str, instruction: str) -> str:
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": f"{instruction}: {prompt}"}
+        ]
+        output = self.pipe(text=messages, max_new_tokens=512)
+        return output[0]["generated_text"][-1]["content"]
 
+# Specific implementations
+class Chatbot(AIService):
+    def chat(self, prompt: str) -> str:
+        instruction = "Anda adalah chatbot Teman percakapan saya. Gunakan Bahasa Sunda Loma untuk menjawab"
+        return self.generate_text(prompt, instruction)
 
-# def generate_text(prompt, chat_history, model="gpt-4-turbo"):
-#     messages = [{"role": "system", "content": "You are a helpful assistant."}]
+class IndoToSundaTranslator(AIService):
+    def translate(self, text: str) -> str:
+        instruction = """Terjemahkan dalam Bahasa Sunda Loma, Tampilkan Hasil terjemahannya saja. 
+        Jika menurutmu kata kata yang kamu keluarkan ada bahasa indonesia atau bukan bahasa sunda 
+        tolong berikan tanda italic"""
+        return self.generate_text(text, instruction)
 
-#     # Menambahkan riwayat percakapan ke dalam messages
-#     for user_msg, bot_msg in chat_history:
-#         messages.append({"role": "user", "content": user_msg})
-#         messages.append({"role": "assistant", "content": bot_msg})
-
-#     # Menambahkan input terbaru dari pengguna
-#     messages.append(
-#         {
-#             "role": "user",
-#             "content": f"Anda adalah chatbot Teman percakapan saya. Gunakan Bahasa Sunda Loma untuk menjawab: {prompt}",
-#         }
-#     )
-
-#     response = openai.ChatCompletion.create(
-#         model=model,
-#         messages=messages,
-#         temperature=0.1,
-#     )
-
-#     return response["choices"][0]["message"]["content"]
-
-
-def generate_text(prompt, pipe):
-    messages = [
-        {
-            "role": "system",
-            "content": [{"type": "text", "text": "You are a helpful assistant."}],
-        },
-        {
-            "role": "user",
-            "content": [
-                {"type": "image", "url": "images/ss.png"},
-                {
-                    "type": "text",
-                    "text": f"Anda adalah chatbot Teman percakapan saya. Gunakan Bahasa Sunda Loma untuk menjawab: {prompt}",
-                },
-            ],
-        },
-    ]
-
-    output = pipe(text=messages, max_new_tokens=512)
-    return output[0]["generated_text"][-1]["content"]
+class SundaToIndoTranslator(AIService):
+    def translate(self, text: str) -> str:
+        instruction = """Sempurnakan terjemahan dari bahasa Sunda ke Indonesia ini agar menjadi 
+        kalimat yang lebih alami dan sesuai dengan konteks aslinya"""
+        return self.generate_text(text, instruction)
