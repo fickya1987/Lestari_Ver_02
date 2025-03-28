@@ -1,10 +1,15 @@
 # ai_services.py
 from transformers import pipeline
+from dotenv import load_dotenv
+import os
+from huggingface_hub import login
 from typing import Optional
 
 class AIService:
-    def __init__(self, model_name: str, task: str = "text-generation"):
-        self.pipe = pipeline(task, model=model_name)
+    def __init__(self, model_name: str):
+        # Initialize HF token
+        login(token=os.getenv("HUGGINGFACEHUB_API_TOKEN"))
+        self.pipe = pipeline("text-generation", model=model_name)
     
     def generate_text(self, prompt: str, instruction: str) -> str:
         messages = [
