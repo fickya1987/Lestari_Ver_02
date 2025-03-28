@@ -1,6 +1,14 @@
 import pandas as pd
 import re
 
+from huggingface_hub import login
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+login(token=os.getenv("HUGGINGFACE_TOKEN"))
+
+
 
 def process_and_translate(df_kamus, df_idiom, df_paribasa, text):
     """
