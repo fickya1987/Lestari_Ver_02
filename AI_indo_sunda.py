@@ -1,6 +1,12 @@
 from huggingface_hub import login
 from transformers import pipeline, BitsAndBytesConfig
 import torch
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+login(token=os.getenv("HUGGINGFACE_TOKEN"))
+
 
 # def generate_text(prompt, model="gpt-4-turbo"):
 #     response = openai.ChatCompletion.create(
