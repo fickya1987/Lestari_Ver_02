@@ -1,9 +1,10 @@
-﻿pandas
+pandas
 streamlit
 torch
 transformers
 huggingface_hub
 Pillow
 openpyxl
-git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3
 bitsandbytes
+python-dotenv  # <-- Required for loading .env variables
+git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3
