@@ -55,7 +55,7 @@ aspect_ratio = image.height / image.width
 new_height = int(max_width * aspect_ratio)
 image_resized = image.resize((max_width, new_height))
 
-st.image(image_resized, use_column_width=False)
+st.image(image_resized, use_container_width=False)
 
 with st.expander("Contoh Input", expanded=False):
     st.write("Berikut beberapa contoh input yang bisa digunakan:")
