@@ -4,6 +4,7 @@ import pandas as pd
 import re
 import openai
 import os
+from bs4 import BeautifulSoup
 
 from AI_chatbot import generate_text
 from constraint1 import highlight_text
@@ -52,8 +53,10 @@ if st.button("Kirim") and user_input:
     text_constraint, kata_terdapat, kata_tidak_terdapat, pasangan_kata = highlight_text(
         bot_response, df_kamus
     )
-    st.session_state.chat_history.append((user_input, text_constraint))
+    clean_text = BeautifulSoup(text_constraint, "html.parser").get_text()
+    st.session_state.chat_history.append((user_input, clean_text))
 
 for user_msg, bot_msg in st.session_state.chat_history:
     st.markdown(f"**User:** {user_msg}")
     st.markdown(f"**Bot:** {bot_msg}")
+
