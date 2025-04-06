@@ -61,7 +61,7 @@ def get_llm_response(input_user):
         f" {input_user}"
     )
     response = openai.ChatCompletion.create(
-        model="gpt-4",
+        model="gpt-4o",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": template_prompt},
