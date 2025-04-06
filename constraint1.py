@@ -2,8 +2,6 @@ import random
 import re
 import pandas as pd
 import numpy as np
-from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification
-
 
 # def merge_ner_results(results):
 #     """
