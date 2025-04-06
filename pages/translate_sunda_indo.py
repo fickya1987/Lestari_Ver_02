@@ -55,7 +55,7 @@ aspect_ratio = image.height / image.width
 new_height = int(max_width * aspect_ratio)
 image_resized = image.resize((max_width, new_height))
 
-st.image(image_resized, use_column_width=False)
+st.image(image_resized, use_container_width=False)
 
 # Load the xlsx file
 df_kamus = pd.read_excel("dataset/data_kamus 27-3-25.xlsx")
