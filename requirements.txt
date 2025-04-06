@@ -1,9 +1,4 @@
-﻿pandas
 streamlit
-torch
-transformers
-huggingface_hub
-Pillow
+openai
+pandas
 openpyxl
-git+https://github.com/huggingface/transformers@v4.49.0-Gemma-3
-bitsandbytes
