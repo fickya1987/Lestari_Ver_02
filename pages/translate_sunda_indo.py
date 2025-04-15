@@ -49,7 +49,7 @@ st.markdown(
 st.title("Translate+Constraint Sunda - Indo")
 st.write("Flowchart:")
 
-image = Image.open("images/flowsundaindo.png")
+image = Image.open("images/flowsundaindo_update.png")
 max_width = 700
 aspect_ratio = image.height / image.width
 new_height = int(max_width * aspect_ratio)
