@@ -1,7 +1,7 @@
 # === translate_sunda_indo.py ===
 import streamlit as st
 from constraint2 import process_and_translate
-from AI_sunda_indo import generate_text
+from AI_sunda_indo import generate_text, ai_translate_fn
 import pandas as pd
 from PIL import Image
 import re
@@ -71,18 +71,31 @@ with st.expander("Contoh Input", expanded=False):
 # Input teks utama
 input_text = st.text_area("Masukkan teks di sini:", "")
 
-st.write("Masukkan teks yang ingin di translate. (ctrl+enter untuk mengirim teks)")
+#st.write("Masukkan teks yang ingin di translate. (ctrl+enter untuk mengirim teks)")
 st.write("Teks yang dimasukkan:", input_text)
 
 input_text = input_text.lower()
 input_text = input_text.replace("é", "e").replace("è", "e")
 
-hasil_translate_kamus = process_and_translate(df_kamus, df_idiom, df_paribasa, input_text)
-penyempurnaan_text = generate_text(hasil_translate_kamus)
+#hasil_translate_kamus, hasil_ai = process_and_translate(df_kamus, df_idiom, df_paribasa, input_text, ai_translate_fn)
+#penyempurnaan_text = generate_text(hasil_ai)
 
-if input_text:
-    st.markdown("Hasil Translate Kamus:", unsafe_allow_html=True)
-    st.markdown(hasil_translate_kamus, unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("Hasil Penyempurnaan AI:", unsafe_allow_html=True)
-    st.markdown(penyempurnaan_text, unsafe_allow_html=True)
+if st.button("🔍 Terjemahkan & Chat"):
+    if input_text.strip():
+        with st.spinner("Menghasilkan respon..."):
+            hasil_translate_kamus, unknown_words = process_and_translate(df_kamus, df_idiom, df_paribasa, input_text, ai_translate_fn)
+            hasil_ai = ai_translate_fn(hasil_translate_kamus, unknown_words)
+            penyempurnaan_text = generate_text(hasil_ai)
+        st.markdown("### 🔤 Hasil Terjemahan Kamus")
+        st.markdown(f"""<div style="background-color:#2C2C3A;padding:15px;border-radius:10px;margin-bottom:15px;">
+        <p style="font-size:16px;color:white;">{hasil_translate_kamus}</p></div>""", unsafe_allow_html=True)
+        st.markdown("### 🤖 Koreksi oleh AI")
+        st.markdown(f"""<div style="background-color:#3E3E50;padding:15px;border-radius:10px;margin-bottom:15px;">
+        <p style="font-size:16px;color:white;">{hasil_ai}</p></div>""", unsafe_allow_html=True)
+        st.markdown("### 🌟 Versi Akhir yang Lebih Natural")
+        st.markdown(f"""<div style="background-color:#4CAF50;padding:15px;border-radius:10px;">
+        <p style="font-size:16px;color:white;">{penyempurnaan_text}</p></div>""", unsafe_allow_html=True)
+    else:
+        st.warning("Silakan masukkan teks sebelum mengklik tombol!")
+
+
