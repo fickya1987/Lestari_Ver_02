@@ -112,7 +112,7 @@ def translate_indo_to_sunda(text):
     response = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "Anda adalah penerjemah bahasa Indonesia ke Sunda LOMA yang akurat dan sopan."},
+            {"role": "system", "content": "Anda adalah penerjemah bahasa Indonesia ke Sunda LOMA yang akurat dan sopan. Anda orangnya to the point cuma melaksanakan tugas menterjemahkan Bahasa Indonesia ke Sunda LOMA."},
             {"role": "user", "content": prompt},
         ]
     )
@@ -127,16 +127,16 @@ def chatbot_hybrid(prompt_sunda):
 
     # Step 1: LLM response in Indonesian
     template_prompt_indo = (
-        f"Ieu sababaraha informasi kamus pikeun ngabantosan ngajawab:\n{context}\n\n"
-        f"Patarosan: {sunda_to_indo}\n"
-        f"Gunakan kosa kata tina kamus ieu: {lema_sublema}\n"
-        f"Jawab patarosan éta kalawan sopan, maké gaya basa Indonesia."
+        f"Berikut adalah beberapa informasi kamus untuk membantu menjawab:\n{context}\n\n"
+        f"Pertanyaan: {sunda_to_indo}\n"
+        f"Gunakan kosakata dari kamus ini.: {lema_sublema}\n"
+        f"Jawablah pertanyaan berikut dengan sopan dan menggunakan gaya bahasa Indonesia bagaikan dengan teman."
     )
 
     response_indo = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "Kamu adalah assistant saya sekaligus sahabat dekat saya. Jangan gunakan embel-embel seperti robot atau seperti informan, anda layaknya manusia."},
             {"role": "user", "content": template_prompt_indo},
         ]
     )
@@ -144,15 +144,15 @@ def chatbot_hybrid(prompt_sunda):
 
     # Step 2: Translate Indonesian to Sunda LOMA by LLM
     template_prompt_sunda = (
-        f"Tuliskeun hasil ieu kana gaya basa Sunda LOMA. Anjeun tiasa maké kosa kata tina kamus ieu:\n\n"
+        f"Tuliskan hasil dalam Bahasa Indonesia ini dalam gaya bahasa Sunda LOMA. Anda dapat menggunakan kosakata dari kamus ini.:\n\n"
         f"{context}\n\n"
-        f"Kalimat dina basa Indonesia:\n{llm_output_indo}"
+        f"Kalimat dalam bahasa Indonesia:\n{llm_output_indo}"
     )
 
     response_sunda = openai.ChatCompletion.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "Anjeun mangrupikeun asisten nu nulis dina basa Sunda LOMA."},
+            {"role": "system", "content": "Anda adalah asisten dan sahabat baik saya yang menulis dalam bahasa Sunda LOMA."},
             {"role": "user", "content": template_prompt_sunda},
         ]
     )
